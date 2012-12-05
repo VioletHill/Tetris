@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -22,7 +23,6 @@ public class GameScoreLayer extends JPanel
 		setBounds(size.width/4+Block.blockEdge*20, 0, size.width-size.width/4-Block.blockEdge*20, size.height);
 		
 		scoreText=new JLabel("µÃ·Ö£º0",JLabel.CENTER);
-
 		scoreText.setForeground(Color.red);
 		scoreText.setBounds(10, 400, 300, 300);
 		scoreText.setFont(new Font(scoreText.getFont().getFontName(),scoreText.getFont().getStyle(),40));

@@ -50,7 +50,7 @@ public class GameLayer extends JPanel
 	public int []view=new int [gameLayerHeight];
 	public JTextField [][]blockView=new JTextField[gameLayerHeight][gameLayerWide];
 	
-	Music music=new Music();
+	//Music music=new Music();
 	boolean isPause;
 	boolean isGameOver;
 	Block superBlock;
@@ -61,30 +61,58 @@ public class GameLayer extends JPanel
 	Timer timer=null;
 	JTextField userName;
 	boolean isNeedSetScore;
-	JButton resumeButton=new JButton("¼ÌÐøÓÎÏ·");
 	
-	public GameLayer(Dimension size,GameScene gameScene)
+	private Color getRandomColor() 
 	{
-		this.gameScene=gameScene;
-		
-		setLayout(null);
-		scrSize=size;
-		setBackground(Color.white);
-		setBounds(scrSize.width/4, (scrSize.height-Block.blockEdge*gameLayerHeight)/2, Block.blockEdge*gameLayerWide, Block.blockEdge*gameLayerHeight);
-		Block.gameLayer=this;
-		
-		resumeButton.setBounds(0, 0, Block.blockEdge*gameLayerWide, Block.blockEdge*gameLayerHeight);
-		resumeButton.setBackground(Color.white);
-		resumeButton.setForeground(Color.black);
-		resumeButton.setMargin(new Insets(1,1,1,1));
-		resumeButton.setFont(new Font(resumeButton.getFont().getFontName(),resumeButton.getFont().getStyle(),100));
-		resumeButton.setFocusable(false);
-		resumeButton.addActionListener(Resume);
-		gameStart();
-		
+		float r = (float) (Math.random() * 60)+10;
+		float y = (float) (Math.random() * 60)+10;
+		float b = (float) (Math.random() * 60)+10;
+		return Color.getHSBColor(r, y, b);
 	}
 	
-	void gameStart()
+	void startView(int hard)
+	{
+		for (int i=0; i<hard; i++)
+			addRow();
+	}
+	
+	void addRow()
+	{
+		if (view[0]!=0)
+		{
+			gameOver();
+			return ;
+		}
+		
+		for (int i=1; i<gameLayerHeight; i++)
+		{
+			for (int k=0; k<gameLayerWide; k++)
+			{
+				if ((view[i] & (1<<k))==0 ) continue;
+				blockView[i][k].setLocation(blockView[i][k].getLocation().x, blockView[i][k].getLocation().y-Block.blockEdge);
+				blockView[i-1][k]=blockView[i][k];
+				blockView[i][k]=null;
+			}
+			view[i-1]=view[i];
+			view[i]=0;
+		}
+
+		view[gameLayerHeight-1]=Math.abs( new Random().nextInt() )%((1<<gameLayerWide)-5)+1;
+		for (int j=0; j<gameLayerWide; j++)
+		{
+			if ( (view[gameLayerHeight-1] & (1<<j) )!=0)
+			{
+				blockView[gameLayerHeight-1][j]=new JTextField();
+				blockView[gameLayerHeight-1][j].setBackground(getRandomColor());
+				blockView[gameLayerHeight-1][j].setEditable(false);
+				blockView[gameLayerHeight-1][j].setBounds(j*Block.blockEdge, (gameLayerHeight-1)*Block.blockEdge, Block.blockEdge, Block.blockEdge);
+				add(blockView[gameLayerHeight-1][j]);
+			}
+		}
+		repaint();
+	}
+	
+	void initialize()
 	{
 		removeAll();
 		repaint();
@@ -94,12 +122,32 @@ public class GameLayer extends JPanel
 		for (int i=0; i<gameLayerHeight; i++)
 			view[i]=0;
 		
+		startView(5);
 		Block.speed=1000;
 		score=0;
 		nextLevel=10;
 		
 		isPause=false;
 		isGameOver=false;
+	}
+	
+	public GameLayer(Dimension size,GameScene gameScene)
+	{
+		this.gameScene=gameScene;
+
+				
+		setLayout(null);
+		scrSize=size;
+	//	setBackground(Color.white);
+		setBounds(scrSize.width/4, (scrSize.height-Block.blockEdge*gameLayerHeight)/2, Block.blockEdge*gameLayerWide, Block.blockEdge*gameLayerHeight);
+		Block.gameLayer=this;
+		
+		gameStart();
+	}
+	
+	void gameStart()
+	{
+		initialize();
 		//createFirstBlock
 		Random random = new Random();
 		int nowBlock=Math.abs( random.nextInt() )%Block.totalBlcok;
@@ -159,7 +207,7 @@ public class GameLayer extends JPanel
 	void updateScore(int row)
 	{
 		if (row==0) return ;
-		music.playDeleteBlockSound();
+		//music.playDeleteBlockSound();
 		switch (row)
 		{
 		case 1:
@@ -273,6 +321,7 @@ public class GameLayer extends JPanel
 		returnMain.setBorderPainted(false);
 		returnMain.setFocusPainted(false);
 		add(returnMain);
+		repaint();
 	}
 	
 	
@@ -302,8 +351,7 @@ public class GameLayer extends JPanel
 		timer=null;
 		gameScene.removeKeyListener(KeyPress);
 		gameScene.setFocusable(false);
-		add(resumeButton);
-		resumeButton.setVisible(true);
+
 		repaint();
 	}
 	
@@ -311,7 +359,6 @@ public class GameLayer extends JPanel
 	{
 		if (!isPause) return ;
 		isPause=false;	
-		this.remove(resumeButton);
 		repaint();
 		
 		gameScene.setFocusable(true);

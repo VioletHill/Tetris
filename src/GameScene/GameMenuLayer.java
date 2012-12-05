@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -91,11 +92,17 @@ public class GameMenuLayer extends JPanel
 	
 	class MainPanel extends JPanel
 	{
+		JButton pauseButton;
 		MainPanel()
 		{
 			setBounds(0, 0, scrSize.width/4, scrSize.height);
-			setLayout(new GridLayout(4,1));
-			JButton pauseButton=new JButton ("‘›Õ£”Œœ∑");
+		//	setLayout(new GridLayout(4,1));
+			
+		
+			
+			System.out.print(this.size().width);
+			System.out.print(this.size().height);
+			pauseButton=new JButton ("‘›Õ£”Œœ∑");
 			setButton(pauseButton);
 			pauseButton.addActionListener(pauseButtonListener);
 			add(pauseButton);
@@ -115,7 +122,16 @@ public class GameMenuLayer extends JPanel
 		{
 			public void actionPerformed(ActionEvent e) 
 			{
-				gameScene.gameLayer.pause();
+				if (pauseButton.getText().contentEquals("‘›Õ£”Œœ∑"))
+				{
+					gameScene.gameLayer.pause();
+					if (!gameScene.gameLayer.isGameOver)pauseButton.setText("ºÃ–¯”Œœ∑");
+				}
+				else
+				{
+					gameScene.gameLayer.resume();
+					pauseButton.setText("‘›Õ£”Œœ∑");
+				}
 			}				
 		};
 		

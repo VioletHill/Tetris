@@ -7,7 +7,10 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 public class GameScene extends JFrame
 {
@@ -31,8 +34,7 @@ public class GameScene extends JFrame
 	
 	public GameScene()
 	{
-		backgroundMusic=new BackgroundMusic();
-		
+		//backgroundMusic=new BackgroundMusic();
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setUndecorated(true);
 		getGraphicsConfiguration().getDevice().setFullScreenWindow(this);
@@ -43,18 +45,25 @@ public class GameScene extends JFrame
 		setVisible(true);
 		setLayout(null);
 		
-		
-		
-		
+		ImageIcon img = new ImageIcon("Resource/MainFrame/scene.png");
+		JLabel imgLabel = new JLabel(img);
+        imgLabel.setBounds(0,0,img.getIconWidth(),img.getIconHeight());
+        getLayeredPane().add(imgLabel,new Integer(Integer.MIN_VALUE));
+        JPanel jp=(JPanel)this.getContentPane();
+        jp.setOpaque(false);
+        
 		gameScoreLayer=new GameScoreLayer(Toolkit.getDefaultToolkit().getScreenSize());
 		add(gameScoreLayer);
-		
-
+		gameScoreLayer.setOpaque(false);
 		
 		gameLayer=new GameLayer(Toolkit.getDefaultToolkit().getScreenSize(),this);
 		add(gameLayer);
+		gameLayer.setOpaque(false);
 
 		gameMenuLayer=new GameMenuLayer(Toolkit.getDefaultToolkit().getScreenSize(),this);
 		add(gameMenuLayer);
+		gameMenuLayer.setOpaque(false);
+		
+
 	}
 }
