@@ -16,19 +16,33 @@ import GameScene.Block.Block;
 public class GameScoreLayer extends JPanel
 {
 	JTextField [][]nextBlockView;
-	JLabel scoreText;
+	JLabel scoreCountText;
+	JLabel deleteCountText;
+	JLabel speedCountText;
+
 	public GameScoreLayer(Dimension size)
 	{
+		setOpaque(false);
 		setLayout(null);
 		setBounds(size.width/4+Block.blockEdge*20, 0, size.width-size.width/4-Block.blockEdge*20, size.height);
 		
-		scoreText=new JLabel("得分：0",JLabel.CENTER);
-		scoreText.setForeground(Color.red);
-		scoreText.setBounds(10, 400, 300, 300);
-		scoreText.setFont(new Font(scoreText.getFont().getFontName(),scoreText.getFont().getStyle(),40));
-
-		add(scoreText);
+		scoreCountText=new JLabel("000000",JLabel.CENTER);
+		scoreCountText.setForeground(Color.red);
+		scoreCountText.setBounds(110, 170, 300, 300);
+		scoreCountText.setFont(new Font(scoreCountText.getFont().getFontName(),scoreCountText.getFont().getStyle(),40));
+		add(scoreCountText);
 		
+		deleteCountText=new JLabel("0000",JLabel.CENTER);
+		deleteCountText.setForeground(Color.green);
+		deleteCountText.setBounds(120, 60, 300, 300);
+		deleteCountText.setFont(new Font(deleteCountText.getFont().getFontName(),deleteCountText.getFont().getStyle(),40));
+		add(deleteCountText);
+		
+		speedCountText=new JLabel("00",JLabel.CENTER);
+		speedCountText.setForeground(Color.white);
+		speedCountText.setFont(new Font(speedCountText.getFont().getFontName(),speedCountText.getFont().getStyle(),40));
+		speedCountText.setBounds(70, 40, 300, 100);
+		add(speedCountText);
 		nextBlockView=new JTextField[4][4];
 		for (int i=0; i<4; i++)
 			for (int j=0; j<4; j++)
@@ -36,7 +50,7 @@ public class GameScoreLayer extends JPanel
 				nextBlockView[i][j]=new JTextField();
 				nextBlockView[i][j].setEditable(false);
 				nextBlockView[i][j].setBackground(this.getBackground());
-				nextBlockView[i][j].setBounds(150-j*Block.blockEdge, 150-i*Block.blockEdge, Block.blockEdge, Block.blockEdge);
+				nextBlockView[i][j].setBounds(180-j*Block.blockEdge, 580-i*Block.blockEdge, Block.blockEdge, Block.blockEdge);
 				add(nextBlockView[i][j]);
 			}
 	}
@@ -94,8 +108,21 @@ public class GameScoreLayer extends JPanel
 			}
 	}
 
-	public void setScore(int score)
+	public void setScoreCount(int score)
 	{
-		scoreText.setText("得分："+new Integer(score).toString());
+		String str="000000"+new Integer(score).toString();
+		scoreCountText.setText(str.substring(str.length()-6,str.length()));
+	}
+	
+	public void setDeleteCount(int count)
+	{
+		String str="0000"+new Integer(count).toString();
+		deleteCountText.setText(str.substring(str.length()-4,str.length()));
+	}
+	
+	public void setSpeedCount(int speed)
+	{
+		String str="00"+new Integer(speed).toString();
+		speedCountText.setText(str.substring(str.length()-2, str.length()));
 	}
 }

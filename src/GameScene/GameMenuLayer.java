@@ -1,7 +1,5 @@
 package GameScene;
 
-import java.applet.Applet;
-import java.applet.AudioClip;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -17,10 +15,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 
 public class GameMenuLayer extends JPanel
 {
@@ -29,10 +29,13 @@ public class GameMenuLayer extends JPanel
 	
 	public MainPanel mainPanel;
 	public HighScorePanel highScorePanel;
+	public SettingPanel settingPanel;
+	boolean isPause=false;
 	Dimension scrSize;
 	
 	GameMenuLayer(Dimension size,GameScene mainGameScene)
 	{
+		setOpaque(false);
 		setBounds(0, 0, size.width/4, size.height);
 		scrSize=size;
 		gameScene=mainGameScene;
@@ -42,13 +45,12 @@ public class GameMenuLayer extends JPanel
 		
 		highScorePanel=new HighScorePanel();
 		add(highScorePanel);
-		highScorePanel.setVisible(false);
+		
+		settingPanel=new SettingPanel();
+		add(settingPanel);
 	}
 	public void setButton(JButton button)
 	{
-		button.setFont(new Font(button.getFont().getFontName(),button.getFont().getStyle(),40));
-		button.setMargin(new Insets(1,1,1,1));
-		button.setForeground(Color.red);
 		button.setBorderPainted(false);
 		button.setContentAreaFilled(false);
 		button.setFocusPainted(false);
@@ -95,24 +97,27 @@ public class GameMenuLayer extends JPanel
 		JButton pauseButton;
 		MainPanel()
 		{
+			setOpaque(false);
 			setBounds(0, 0, scrSize.width/4, scrSize.height);
-		//	setLayout(new GridLayout(4,1));
+			setLayout(new GridLayout(4,1));
 			
-		
-			
-			System.out.print(this.size().width);
-			System.out.print(this.size().height);
-			pauseButton=new JButton ("暂停游戏");
+			pauseButton=new JButton (new ImageIcon("Resource/Button/pause.png"));
 			setButton(pauseButton);
 			pauseButton.addActionListener(pauseButtonListener);
 			add(pauseButton);
 			
-			JButton highScore=new JButton("高分榜");
+			JButton highScore=new JButton(new ImageIcon("Resource/Button/highScore.png"));
 			setButton(highScore);
 			highScore.addActionListener(highScoreButtonListener);
 			add(highScore);
 			
-			JButton returnMain=new JButton("主菜单");
+			JButton setting=new JButton(new ImageIcon("Resource/Button/setting.png"));
+			setButton(setting);
+			setting.addActionListener(settingButtonListener);
+			add(setting);
+			
+			JButton returnMain=new JButton(new ImageIcon("Resource/Button/exit.png"));
+			returnMain.setBounds(100, 100, 260, 100);
 			setButton(returnMain);
 			returnMain.addActionListener(returnMainButtonListener);
 			add(returnMain);
@@ -122,19 +127,34 @@ public class GameMenuLayer extends JPanel
 		{
 			public void actionPerformed(ActionEvent e) 
 			{
-				if (pauseButton.getText().contentEquals("暂停游戏"))
+				if (!isPause)
 				{
 					gameScene.gameLayer.pause();
-					if (!gameScene.gameLayer.isGameOver)pauseButton.setText("继续游戏");
+					if (!gameScene.gameLayer.isGameOver)
+					{
+						isPause=true;
+						pauseButton.setIcon(new  ImageIcon("Resource/Button/resume.png"));
+					}
 				}
 				else
 				{
 					gameScene.gameLayer.resume();
-					pauseButton.setText("暂停游戏");
+					pauseButton.setIcon(new  ImageIcon("Resource/Button/pause.png"));
+					isPause=false;
 				}
 			}				
 		};
 		
+		ActionListener settingButtonListener= new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				mainPanel.setVisible(false);
+				settingPanel.setVisible(true);
+				repaint();
+				gameScene.requestFocus();
+			}
+		};
 		ActionListener highScoreButtonListener = new ActionListener() 
 		{
 			public void actionPerformed(ActionEvent e) 
@@ -172,8 +192,10 @@ public class GameMenuLayer extends JPanel
 		final int totScore=10;
 		HighScorePanel()
 		{
+			setOpaque(false);
 			setBounds(0, 0, scrSize.width/4, scrSize.height);
-			setLayout(new GridLayout(12,1));
+			setLayout(null);
+			setVisible(false);
 		}
 		
 		void initializeFile() throws FileNotFoundException, IOException
@@ -200,25 +222,36 @@ public class GameMenuLayer extends JPanel
 			int []scorePlace=(int [])in.readObject();
 			in.close();
 			
-			
-			JLabel title=new JLabel("游戏高分榜",JLabel.CENTER);
-			title.setFont(new Font(title.getFont().getFontName(),title.getFont().getStyle(),40));
-			title.setForeground(Color.red);
-			add(title);
+			//修改名字长度
 			for (int i=0; i<totScore; i++)
 			{
-				namePlace[i]=namePlace[i]+"                    ";
-				if (namePlace[i].length()>10) namePlace[i]=namePlace[i].substring(0, 10);
-				JLabel text=new JLabel("  "+new Integer(i+1).toString()+"  :  "+namePlace[i]+"    "+new Integer(scorePlace[i]).toString(),JLabel.LEFT);
+				namePlace[i]=namePlace[i];
+				if (namePlace[i].length()>6) namePlace[i]=namePlace[i].substring(0, 6);
+				JLabel text=new JLabel(namePlace[i],JLabel.LEFT);
 				text.setFont(new Font(text.getFont().getFontName(),text.getFont().getStyle(),20));
+				text.setForeground(Color.blue);
+				text.setBounds(80, i*38+125, 200, 38);
 				add(text);
+				
+				JLabel score=new JLabel(new Integer(scorePlace[i]).toString(),JLabel.LEFT);
+				score.setFont(text.getFont());
+				score.setForeground(Color.red);
+				score.setBounds(220, i*38+125, 100,38);
+				add(score);
 			}
-			JButton returnMainButton=new JButton("返回上一层");
+			
+			JLabel img=new JLabel(new ImageIcon("Resource/highScoreWin.png"),JLabel.LEFT);
+			img.setBounds(0, 0, 450, 600);
+			add(img);
+			
+			JButton returnMainButton=new JButton(new ImageIcon("Resource/Button/back.png"));
 			setButton(returnMainButton);
-			returnMainButton.addActionListener(LastPanelButtonListener);
+			returnMainButton.setBounds(170, 600, 200, 200);
+			returnMainButton.addActionListener(lastPanelButtonListener);
 			add(returnMainButton);
 		}
 		
+		//判断是否进入高分榜
 		public boolean isEnterHighScore(int userScore) throws IOException, ClassNotFoundException
 		{
 			File file=new File("hightScore.txt");
@@ -239,6 +272,8 @@ public class GameMenuLayer extends JPanel
 			}
 			return false;
 		}
+		
+		//用userName 的 userScore 刷新高分榜
 		public void setScore(int userScore,String userName) throws FileNotFoundException, IOException, ClassNotFoundException
 		{
 			File file=new File("hightScore.txt");
@@ -275,18 +310,92 @@ public class GameMenuLayer extends JPanel
 			out.close();
 
 		}
-		ActionListener LastPanelButtonListener = new ActionListener() 
+		ActionListener lastPanelButtonListener = new ActionListener() 
 		{
 			public void actionPerformed(ActionEvent e) 
 			{
 				highScorePanel.setVisible(false);
 				highScorePanel.removeAll();
 				mainPanel.setVisible(true);
-				repaint();
 			}				
 		};
 	}
 	
+	class SettingPanel extends JPanel
+	{
+		JButton musicButton[];
+
+		SettingPanel()
+		{
+			setOpaque(false);
+			setBounds(0, 0, scrSize.width/4, scrSize.height);
+			setLayout(null);
+			JLabel title=new JLabel(new ImageIcon("Resource/Button/setting.png"));
+			title.setBounds(0, 0, 300, 200);
+			add(title);
+			
+			musicButton=new JButton[4];
+			for (int i=0; i<4; i++)
+			{
+				musicButton[i]=new JButton(new ImageIcon("Resource/"+"music"+new Integer(i+1).toString()+".png"));
+				musicButton[i].setBounds(50, 100*i+150, 200, 100);
+				musicButton[i].setBorderPainted(false);
+				musicButton[i].setFocusPainted(false);
+				musicButton[i].setContentAreaFilled(false);
+				musicButton[i].addActionListener(settingMusicButtonListener);
+				add(musicButton[i]);
+			}
+			
+			JButton closeMusicButton=new JButton(new ImageIcon("Resource/closeMusic.png"));
+			closeMusicButton.setBounds(50, 100*4+150, 200, 100);
+			closeMusicButton.setBorderPainted(false);
+			closeMusicButton.setFocusPainted(false);
+			closeMusicButton.setContentAreaFilled(false);
+			closeMusicButton.addActionListener(closeMusicButtonListener);
+			add(closeMusicButton);
+			
+			JButton returnMainButton=new JButton(new ImageIcon("Resource/Button/back.png"));
+			returnMainButton.setBorderPainted(false);
+			returnMainButton.setContentAreaFilled(false);
+			returnMainButton.setFocusPainted(false);
+			returnMainButton.addActionListener(lastPanelButtonListener);
+			returnMainButton.setBounds(170, 600, 200, 200);
+			
+			add(returnMainButton);
+			setVisible(false);
+		}
+		ActionListener settingMusicButtonListener = new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				gameScene.gameLayer.music.isCloseMusic=false;
+				for (int i=0; i<4; i++)
+				{
+					if (e.getSource()==musicButton[i])
+						gameScene.backgroundMusic.selectMusic(new Integer(i+1).toString());
+				}
+				gameScene.requestFocus();
+			}				
+		};
+		
+		ActionListener closeMusicButtonListener=new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				gameScene.backgroundMusic.stopBackgroundMusic();
+				gameScene.gameLayer.music.isCloseMusic=true;
+				gameScene.requestFocus();
+			}
+		};
+		ActionListener lastPanelButtonListener=new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				settingPanel.setVisible(false);
+				mainPanel.setVisible(true);
+			}		
+		};
+	}
 	
 }
 

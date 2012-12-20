@@ -2,10 +2,10 @@ package GameScene;
 
 import java.applet.Applet;
 import java.applet.AudioClip;
-import java.awt.DisplayMode;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -18,34 +18,55 @@ public class GameScene extends JFrame
 	public static GameLayer gameLayer;
 	public static GameMenuLayer gameMenuLayer;
 	public static BackgroundMusic backgroundMusic;
+	int select;
 	class BackgroundMusic extends Applet
 	{
-		//AudioClip background=Applet.newAudioClip(Music.class.getResource("Rich08.mid"));
-		AudioClip background=Applet.newAudioClip(Music.class.getResource("background.mid"));
+		AudioClip background;
+		
 		BackgroundMusic()
 		{
-			background.loop();
+			setMusic("1");
 		}
 		public void stopBackgroundMusic()
 		{
-			background.stop();
+			if (background!=null)
+			{
+				background.stop();
+				background=null;
+			}
+		}
+		void setMusic(String str)
+		{
+			URL url=null;
+			try {
+				File file=new File("Resource/Music/"+str+".wav");
+				url=new URL("file:"+file.getAbsolutePath());
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
+			background=Applet.newAudioClip(url);
+			background.loop();
+		}
+		public void selectMusic(String str)
+		{
+			if (background!=null)	background.stop();
+			background=null;
+			if (str=="πÿ±’“Ù¿÷")  return ;
+			setMusic(str);
 		}
 	}
 	
-	public GameScene()
+	public GameScene(int userSelect)
 	{
-		//backgroundMusic=new BackgroundMusic();
+		select=userSelect;
+		backgroundMusic=new BackgroundMusic();
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setUndecorated(true);
 		getGraphicsConfiguration().getDevice().setFullScreenWindow(this);
-		GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment(); 
-		GraphicsDevice device=environment.getDefaultScreenDevice(); 
-		DisplayMode displayMode=new DisplayMode(1366,768,16,60);
-	//	device.setDisplayMode(displayMode); 
 		setVisible(true);
 		setLayout(null);
 		
-		ImageIcon img = new ImageIcon("Resource/MainFrame/scene.png");
+		ImageIcon img = new ImageIcon("Resource/MainFrame/use.png");
 		JLabel imgLabel = new JLabel(img);
         imgLabel.setBounds(0,0,img.getIconWidth(),img.getIconHeight());
         getLayeredPane().add(imgLabel,new Integer(Integer.MIN_VALUE));
@@ -54,16 +75,12 @@ public class GameScene extends JFrame
         
 		gameScoreLayer=new GameScoreLayer(Toolkit.getDefaultToolkit().getScreenSize());
 		add(gameScoreLayer);
-		gameScoreLayer.setOpaque(false);
 		
-		gameLayer=new GameLayer(Toolkit.getDefaultToolkit().getScreenSize(),this);
+		gameLayer=new GameLayer(Toolkit.getDefaultToolkit().getScreenSize(),this,select);
 		add(gameLayer);
-		gameLayer.setOpaque(false);
 
 		gameMenuLayer=new GameMenuLayer(Toolkit.getDefaultToolkit().getScreenSize(),this);
-		add(gameMenuLayer);
-		gameMenuLayer.setOpaque(false);
-		
+		add(gameMenuLayer);		
 
 	}
 }

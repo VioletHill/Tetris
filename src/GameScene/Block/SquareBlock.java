@@ -8,7 +8,7 @@ public class SquareBlock extends Block
 	{
 		blockShape=BlockShape.SQUARE;
 		blockForm=0;
-		blockView=102;			//0100 0110
+		blockView=102;			//0110 0110
 		blockColor=Color.blue;
 		blockPosition.row=1;
 		blockPosition.column=6;

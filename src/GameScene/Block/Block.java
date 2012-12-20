@@ -9,7 +9,6 @@ import Math.MyMath;
 
 public abstract class Block 
 {
-	static int ifinal=0;
 	public static boolean isBlockMove=false;
 	public static final int blockEdge=30;
 	public static final int totalBlcok=8;
@@ -240,6 +239,7 @@ public abstract class Block
 		}
 		gameLayer.repaint();
 	}
+	
 	public boolean checkForm(int view)
 	{
 		while (view!=0)

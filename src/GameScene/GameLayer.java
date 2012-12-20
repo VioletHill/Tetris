@@ -10,6 +10,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -33,10 +36,25 @@ import MainFrame.MainFrame;
 
 class Music extends Applet
 {
-	AudioClip deleteBlockSound=Applet.newAudioClip(Music.class.getResource("deleteBlock.wav"));
-	
+	AudioClip deleteBlockSound;
+	boolean isCloseMusic=false;
+	Music()
+	{
+		URL url=null;
+		try 
+		{
+			File file=new File("Resource/Music/deleteBlock.wav");
+			url=new URL("file:"+file.getAbsolutePath());
+		} 
+		catch (MalformedURLException e)
+		{
+			e.printStackTrace();
+		}
+		deleteBlockSound=Applet.newAudioClip(url);
+	}
 	void playDeleteBlockSound()
 	{
+		if (isCloseMusic) return ;
 		deleteBlockSound.play();
 	}
 }
@@ -50,16 +68,18 @@ public class GameLayer extends JPanel
 	public int []view=new int [gameLayerHeight];
 	public JTextField [][]blockView=new JTextField[gameLayerHeight][gameLayerWide];
 	
-	//Music music=new Music();
+	Music music=new Music();
 	boolean isPause;
 	boolean isGameOver;
 	Block superBlock;
 	int nextBlock;
 	int score;
+	int deleteCount;
 	int nextLevel;
 	Dimension scrSize;
 	Timer timer=null;
 	JTextField userName;
+	int select;
 	boolean isNeedSetScore;
 	
 	private Color getRandomColor() 
@@ -122,23 +142,24 @@ public class GameLayer extends JPanel
 		for (int i=0; i<gameLayerHeight; i++)
 			view[i]=0;
 		
-		startView(5);
+		startView(select);
 		Block.speed=1000;
 		score=0;
-		nextLevel=10;
+		deleteCount=0;
+		nextLevel=5000;
 		
 		isPause=false;
 		isGameOver=false;
 	}
 	
-	public GameLayer(Dimension size,GameScene gameScene)
+	public GameLayer(Dimension size,GameScene gameScene,int userSelect)
 	{
+		select=userSelect;
 		this.gameScene=gameScene;
-
+		setOpaque(false);
 				
 		setLayout(null);
 		scrSize=size;
-	//	setBackground(Color.white);
 		setBounds(scrSize.width/4, (scrSize.height-Block.blockEdge*gameLayerHeight)/2, Block.blockEdge*gameLayerWide, Block.blockEdge*gameLayerHeight);
 		Block.gameLayer=this;
 		
@@ -207,32 +228,37 @@ public class GameLayer extends JPanel
 	void updateScore(int row)
 	{
 		if (row==0) return ;
-		//music.playDeleteBlockSound();
+		deleteCount+=row;
+		music.playDeleteBlockSound();
 		switch (row)
 		{
 		case 1:
-			score++;
+			score+=100;
 			break;
 		case 2:
-			score+=3;
+			score+=300;
 			break;
 		case 3:
-			score+=6;
+			score+=600;
 			break;
 		case 4:
-			score+=16;
+			score+=1600;
 			break;
 		default:
-			score+=20;
+			score+=2000;
 			break;
 		}
-		gameScene.gameScoreLayer.setScore(score);
+		gameScene.gameScoreLayer.setScoreCount(score);
+		gameScene.gameScoreLayer.setDeleteCount(deleteCount);
 		if (score>=nextLevel)
 		{
+			if (Block.speed<=100) return ; 
 			timer.cancel();
 			timer=null;
-			if (Block.speed>100) Block.speed-=100;
-			nextLevel+=10;
+			Block.speed-=100;
+			gameScene.gameScoreLayer.setSpeedCount(nextLevel/5000);
+			nextLevel+=5000;
+			if (select==15) addRow();
 			timer=new Timer();
 			timer.schedule(new FallDown(), Block.speed,Block.speed);
 		}
@@ -295,8 +321,8 @@ public class GameLayer extends JPanel
 		{
 			isNeedSetScore=true;
 			gameOverText.setText("恭喜你，进入了高分榜");
-			userName=new JTextField("请在这里输入你的大名");
-			userName.setHorizontalAlignment(JTextField.CENTER);
+			gameOverText.setForeground(Color.white);
+			userName=new JTextField("请在这里输入你的大名",JTextField.CENTER);
 			userName.setFont(new Font(userName.getFont().getFontName(),userName.getFont().getStyle(),40));
 			userName.setBounds(100, 200,  400, 100);
 			add(userName);
@@ -304,22 +330,24 @@ public class GameLayer extends JPanel
 		
 		JButton replay=new JButton ("再来一局");
 		JButton returnMain=new JButton ("返回主菜单");
-		replay.setBackground(Color.white);
+		replay.setForeground(Color.white);
 		replay.setBounds(200, 500, 200, 100);
 		replay.addActionListener(Replay);
 		replay.setMargin(new Insets(1,1,1,1));
 		replay.setFont(new Font(replay.getFont().getFontName(),replay.getFont().getStyle(),30));
 		replay.setBorderPainted(false);
 		replay.setFocusPainted(false);
+		replay.setContentAreaFilled(false);
 		add(replay);
 		
-		returnMain.setBackground(Color.white);
 		returnMain.setBounds(200, 600, 200, 100);
 		returnMain.addActionListener(ReturnMain);
+		returnMain.setForeground(Color.white);
 		returnMain.setMargin(new Insets(1,1,1,1));
 		returnMain.setFont(new Font(returnMain.getFont().getFontName(),returnMain.getFont().getStyle(),30));
 		returnMain.setBorderPainted(false);
 		returnMain.setFocusPainted(false);
+		returnMain.setContentAreaFilled(false);
 		add(returnMain);
 		repaint();
 	}
@@ -339,6 +367,7 @@ public class GameLayer extends JPanel
 			timer=null;
 		}
 		new MainFrame();
+		gameScene.backgroundMusic.stopBackgroundMusic();
 		gameScene.dispose();
 	}
 	
