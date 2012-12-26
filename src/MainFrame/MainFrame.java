@@ -95,9 +95,9 @@ public class MainFrame extends JFrame
 	public MainFrame()
 	{
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		Dimension scrSize=Toolkit.getDefaultToolkit().getScreenSize();
-		setBounds(scrSize.width/2-250, scrSize.height/2-350, 500, 700);
+		setSize(500, 700);
 		setLayout(null);
+		setLocationRelativeTo(null);
 		
 		ImageIcon img = new ImageIcon("Resource/MainFrame/MainBackground.jpg");
 		JLabel imgLabel = new JLabel(img);

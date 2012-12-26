@@ -216,7 +216,11 @@ public class GameMenuLayer extends JPanel
 		public void getScore() throws IOException, ClassNotFoundException
 		{
 			File file=new File("hightScore.txt");
-
+			if (!file.exists())
+			{
+				file.createNewFile();
+				initializeFile();
+			}
 			ObjectInputStream in=new ObjectInputStream(new FileInputStream(file));
 			String []namePlace=(String[])in.readObject();
 			int []scorePlace=(int [])in.readObject();

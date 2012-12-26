@@ -323,6 +323,7 @@ public class GameLayer extends JPanel
 			gameOverText.setText("恭喜你，进入了高分榜");
 			gameOverText.setForeground(Color.white);
 			userName=new JTextField("请在这里输入你的大名",JTextField.CENTER);
+			
 			userName.setFont(new Font(userName.getFont().getFontName(),userName.getFont().getStyle(),40));
 			userName.setBounds(100, 200,  400, 100);
 			add(userName);
